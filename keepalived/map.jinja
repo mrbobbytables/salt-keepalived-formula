@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+# vim: ft=jinja
+
+{% import_yaml 'keepalived/defaults.yml' as defaults %}
+{% set kad = salt['pillar.get']('keepalived:lookup', default=defaults.keepalived, merge=True) %}
+
+{% if salt['pillar.get']('keepalived:lookup:scripts')   is defined %}
+  {% set pillar_scripts = [] %}
+  {% set tmp_scripts = salt['pillar.get']('keepalived:lookup:scripts') %}
+  {% for script in tmp_scripts %}
+    {% if script.name is defined and script.source is defined %}
+      {% set tmp_script = {
+        'user': 'root',
+        'group': 'root',
+        'mode': '0700'
+      } %}
+      {% do salt['slsutil.update'](tmp_script, script) %}
+      {% do pillar_scripts.append(tmp_script) %}
+    {% endif %}
+  {% endfor %}
+  {% do salt['slsutil.update'](kad, { 'scripts' : pillar_scripts }) %}
+{% endif %}
+
+

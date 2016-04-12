@@ -1,0 +1,135 @@
+{%- from 'keepalived/map.jinja' import kad with context -%}
+
+# managed by salt
+
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+
+global_defs {
+{%- for key, value in kad.config.get("global_defs").iteritems() -%}
+  {%- if value is none %}
+    {{ key }}
+  {%- elif value is number %}
+    {{ key }} {{ value }}
+  {%- elif value is string -%}
+    {%- if " " in value %}
+    {{ key }} "{{ value }}"
+    {%- else %}
+    {{ key }} {{ value }}
+    {%- endif %}
+  {%- elif value|string|lower == 'true' or value|string|lower == 'false' %}
+    {{ key }} {{ value|string|lower }}  
+  {%- elif value is iterable %}
+    {{ key }} {
+  {%- for val in value %}
+    {%- if " " in val|string %}
+      "{{ val }}"
+    {%- else %}
+      {{ val }}
+    {%- endif %}
+  {%- endfor %}
+    }
+{%- endif -%}
+{% endfor %}
+}
+
+
+#---------------------------------------------------------------------
+# Static IPs and Routes
+#---------------------------------------------------------------------
+
+static_ipaddresses {
+{%- for ip in kad.config.static_ipaddresses %}
+  "{{ ip }}"
+{%- endfor %}
+}
+
+static_routes {
+{%- for route in kad.config.static_routes %}
+  "{{ route }}"
+{%- endfor %}
+}
+
+
+#---------------------------------------------------------------------
+# vrrp scripts
+#---------------------------------------------------------------------
+
+{% for key, value  in kad.config.get("vrrp_scripts").iteritems() -%}  
+  vrrp_script {{ key }} {
+  {%- for param_key, param_value in value.iteritems() -%}
+    {%- if param_value is none %}
+      {{ param_key }}
+    {%- elif param_value is number %}
+      {{ param_key }} {{ param_value }}
+    {%- elif param_value is string %}
+      {%- if " " in param_value %}
+      {{ param_key }} "{{ param_value }}"
+      {%- else %}
+      {{ param_key }} {{ param_value }}
+      {%- endif %}
+    {%- elif param_value|string|lower == 'true' or param_value|string|lower == 'false' %}
+      {{ param_key }} {{ param_value|string|lower }}
+    {%- endif -%}
+{%- endfor %}
+}
+
+{% endfor -%}
+
+
+#---------------------------------------------------------------------
+# vrrp instances
+#---------------------------------------------------------------------
+
+
+{% for key, value in kad.config.get("vrrp_instances").iteritems() -%}
+vrrp_instance {{ key }} {
+{% for param_key, param_value in value.iteritems() -%}
+  {% if param_value is none %}
+    {{ param_key }}
+  {%- elif param_value is mapping %}
+    {{ param_key }} {
+      {%- for p_key, p_val in param_value.iteritems() -%}
+        {%- if p_val is not defined %}
+          {{ p_key }}
+        {%- elif p_val is number %}
+          {{ p_key }} {{ p_val }}
+        {%- elif p_val is string %}
+          {%- if " " in p_val %}
+          {{ p_key }} "{{ p_val }}"
+          {%- else %}
+          {{ p_key }} {{ p_val }}
+          {%- endif %}
+        {%- elif p_val|string|lower == 'true' or p_val|string|lower == 'false' %}
+          {{ p_key }} {{ p_val|string|lower }}
+        {%- endif -%}
+      {%- endfor %}
+    }
+  {%- elif param_value is number %}
+    {{ param_key }} {{ param_value }}
+  {%- elif param_value is string %}
+    {%- if " " in param_value %}
+    {{ param_key }} "{{ param_value }}"
+    {%- else %}
+    {{ param_key }} {{ param_value }}
+    {%- endif %}
+  {%- elif param_value|string|lower == 'true' or param_value|string|lower == 'false' %}
+    {{ param_key }} {{ param_value|string|lower }}
+  {%- elif param_value is iterable %}
+    {{ param_key }} {
+      {%- for val in param_value %}
+        {%- if " " in val|string %}
+        "{{ val }}"
+        {%- else %}
+        {{ val }}
+        {%- endif %}
+      {%- endfor %} 
+    }
+  {%- endif -%}
+{% endfor %}
+}
+
+{% endfor %}
+
+
