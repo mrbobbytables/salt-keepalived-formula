@@ -5,30 +5,21 @@
 #---------------------------------------------------------------------
 # Global settings
 #---------------------------------------------------------------------
-
 global_defs {
 {%- for key, value in kad.config.get("global_defs").iteritems() -%}
   {%- if value is none %}
     {{ key }}
   {%- elif value is number %}
     {{ key }} {{ value }}
-  {%- elif value is string -%}
-    {%- if " " in value %}
-    {{ key }} "{{ value }}"
-    {%- else %}
+  {%- elif value is string %}
     {{ key }} {{ value }}
-    {%- endif %}
   {%- elif value|string|lower == 'true' or value|string|lower == 'false' %}
     {{ key }} {{ value|string|lower }}  
   {%- elif value is iterable %}
     {{ key }} {
   {%- for val in value %}
-    {%- if " " in val|string %}
-      "{{ val }}"
-    {%- else %}
       {{ val }}
-    {%- endif %}
-  {%- endfor %}
+  {% endfor %}
     }
 {%- endif -%}
 {% endfor %}
@@ -36,26 +27,32 @@ global_defs {
 
 
 #---------------------------------------------------------------------
-# Static IPs and Routes
+# Static IPs
 #---------------------------------------------------------------------
 
 static_ipaddresses {
 {%- for ip in kad.config.static_ipaddresses %}
-  "{{ ip }}"
+  {{ ip }}
 {%- endfor %}
 }
 
+
+#---------------------------------------------------------------------
+# Static Routes
+#---------------------------------------------------------------------
+
 static_routes {
 {%- for route in kad.config.static_routes %}
-  "{{ route }}"
+  {{ route }}
 {%- endfor %}
 }
+
 
 
 #---------------------------------------------------------------------
 # vrrp scripts
 #---------------------------------------------------------------------
-
+{# only script path should be quoted string in this context #}
 {% for key, value  in kad.config.get("vrrp_scripts").iteritems() -%}  
   vrrp_script {{ key }} {
   {%- for param_key, param_value in value.iteritems() -%}
@@ -64,11 +61,7 @@ static_routes {
     {%- elif param_value is number %}
       {{ param_key }} {{ param_value }}
     {%- elif param_value is string %}
-      {%- if " " in param_value %}
       {{ param_key }} "{{ param_value }}"
-      {%- else %}
-      {{ param_key }} {{ param_value }}
-      {%- endif %}
     {%- elif param_value|string|lower == 'true' or param_value|string|lower == 'false' %}
       {{ param_key }} {{ param_value|string|lower }}
     {%- endif -%}
@@ -76,6 +69,7 @@ static_routes {
 }
 
 {% endfor -%}
+
 
 
 #---------------------------------------------------------------------
@@ -93,14 +87,8 @@ vrrp_instance {{ key }} {
       {%- for p_key, p_val in param_value.iteritems() -%}
         {%- if p_val is not defined %}
           {{ p_key }}
-        {%- elif p_val is number %}
+        {%- elif p_val is number or p_val is string %}
           {{ p_key }} {{ p_val }}
-        {%- elif p_val is string %}
-          {%- if " " in p_val %}
-          {{ p_key }} "{{ p_val }}"
-          {%- else %}
-          {{ p_key }} {{ p_val }}
-          {%- endif %}
         {%- elif p_val|string|lower == 'true' or p_val|string|lower == 'false' %}
           {{ p_key }} {{ p_val|string|lower }}
         {%- endif -%}
@@ -109,7 +97,7 @@ vrrp_instance {{ key }} {
   {%- elif param_value is number %}
     {{ param_key }} {{ param_value }}
   {%- elif param_value is string %}
-    {%- if " " in param_value %}
+    {%- if 'notify' in param_key %}
     {{ param_key }} "{{ param_value }}"
     {%- else %}
     {{ param_key }} {{ param_value }}
@@ -119,11 +107,7 @@ vrrp_instance {{ key }} {
   {%- elif param_value is iterable %}
     {{ param_key }} {
       {%- for val in param_value %}
-        {%- if " " in val|string %}
-        "{{ val }}"
-        {%- else %}
         {{ val }}
-        {%- endif %}
       {%- endfor %} 
     }
   {%- endif -%}
