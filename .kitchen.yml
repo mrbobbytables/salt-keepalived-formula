@@ -31,17 +31,7 @@ suites:
             - keepalived
 
 
-platforms:
-  - name: debian-wheezy
-    driver_config:
-      box: debian/wheezy64
-      box_url: https://atlas.hashicorp.com/debian/wheezy64
-
-  - name: debian-jessie
-    driver_config:
-      box: debian/jessie64
-      box_url: https://atlas.hashicorp.com/debian/jessie64
-     
+platforms: 
   - name: ubuntu-precise
     driver_config:
       box: ubuntu/precise64

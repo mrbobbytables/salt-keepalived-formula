@@ -1,5 +1,6 @@
 keepalived:
   lookup:
+    non_local_bind: true    
     scripts:
       - name: /opt/scripts/test_1.sh
         source: salt://test-data/script_1.sh
@@ -8,7 +9,6 @@ keepalived:
         user: vagrant
         group: vagrant
         mode: 777
-
     config:
       global_defs:
         notification_email: 
