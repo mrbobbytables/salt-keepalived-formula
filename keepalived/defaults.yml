@@ -1,25 +1,4 @@
-# scripts is an array of hashes including
-# scripts:
-# -
-#  name:
-#  source:
-#  -- optional --
-#  user:
-#  group:
-#  mode:
-#  template:
-
 keepalived:
   non_local_bind: true
   scripts: []
   config:
-    global_defs:
-      notification_email: []
-      notification_email_from:
-      smtp_server:
-      smtp_connect_timeout:
-    static_ipaddresses: []
-    static_routes: []
-    vrrp_scripts: {}
-    vrrp_instances: {}
-
