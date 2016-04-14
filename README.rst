@@ -7,8 +7,6 @@ Formula for managing keepalived
 Tested with the following platforms:
 
 - Centos 7
-- Debian 7 (Wheezy)
-- Debian 8 (Jessie)
 - Fedora 22
 - Fedora 23
 - Oracle Linux 7
@@ -25,37 +23,13 @@ States
 ``keepalived``
 ----------
 
-Manages apt configuration based on pillar data.
-
-**Variables of Note**
-
-- **unnattended_upgrades** - Enables unattended upgrades
-- **ppa** - Enables PPA support
-- **transports** - A list of transports to enable (debtorrent, https, s3, spacewalk). 
-- **config** - A hash of apt config files to update or modify.
-
-The ``config`` block uses the following syntax:
-
-::
-
-  apt:
-    lookup:
-      config:
-        <name of apt config file>:
-          mode: <create|append>
-          params:
-            - name: <parameter name>
-              value:
-                - <value 1>
-                - <value 2>
-
-
 **Pillar Example:**
 
 ::
 
   keepalived:
     lookup:
+      non_local_bind: true
       scripts:
         - name: /opt/scripts/test_1.sh
           source: salt://test-data/script_1.sh
